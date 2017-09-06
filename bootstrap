@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# cleanup build dir if exist
+rm -rf _build
+
+# create Unix Makefiles project
+cmake -B_build -H.
+
+# Create a helper makefile
+echo "
+.PHONY: all clean_all test
+
+all:
+	make -C _build all
+
+clean_all:
+	rm -rf _build; rm Makefile
+
+test: all
+	make -C _build test
+
+run:
+	./_build/mc_simple
+	./_build/mc_mpi
+
+%:
+	make -C _build \$@
+" > Makefile
+
+# ok
+echo "You can now run \"make\""
+
+
