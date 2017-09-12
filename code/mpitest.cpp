@@ -6,11 +6,15 @@
 #include <string.h>
 #include <mpi.h>
 
+#include <cmath>
+
 int 
 main(int argc, char **argv)
 {
     char buf[256];
-    int my_rank, num_procs;
+    int my_rank, num_procs, n;
+    const int size = 256;
+    double sintable[size];
 
     /* Initialize the infrastructure necessary for communication */
     MPI_Init(&argc, &argv);
@@ -48,10 +52,16 @@ main(int argc, char **argv)
         /* Receive message from process #0 */
         MPI_Recv(buf, sizeof(buf), MPI_CHAR, 0,
                 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        assert(memcmp(buf, "Hello ", 6) == 0),
+        assert(memcmp(buf, "Hello ", 6) == 0);
 
-            /* Send message to process #0 */
-            sprintf(buf, "Process %i reporting for duty.", my_rank);
+        /* Compute some things with OpenMP */
+#pragma omp parallel for
+        for (n = 0; n < size; n++) {
+            sintable[n] = std::sin(2 * M_PI * n / size);
+        }
+
+        /* Send message to process #0 */
+        sprintf(buf, "Process %i reporting for duty.", my_rank);
         MPI_Send(buf, sizeof(buf), MPI_CHAR, 0,
                 0, MPI_COMM_WORLD);
 

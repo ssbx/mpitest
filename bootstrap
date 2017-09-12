@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# exit on error
+set -e
+
 # cleanup build dir if exist
 rm -rf _build
 
@@ -19,9 +22,8 @@ clean_all:
 test: all
 	make -C _build test
 
-run:
-	./_build/mc_simple
-	./_build/mc_mpi
+run: all
+	./_build/mpitest
 
 %:
 	make -C _build \$@
@@ -29,5 +31,4 @@ run:
 
 # ok
 echo "You can now run \"make\""
-
 
